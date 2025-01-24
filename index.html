@@ -8,14 +8,13 @@
 </head>
 <body>
     <header>
-        <h1>HealthMate Dashboard</h1>
+        </h1>HealthMate Dashboard</h1>
     </header>
 
     <div class="container">
         <h2>ยินดีต้อนรับสู่ HealthMate!</h2>
-        <p>ติดตามสุขภาพของคุณและบรรลุเป้าหมายของคุณ 💪</p>
+        <p>ตัวช่วยในการคํานวณแคลลอรี่เพื่อวางแผนการกิน! 💪</p>
 
-        <!-- คำนวณแคลอรี่ที่ควรบริโภค -->
         <div class="card">
             <h3>คำนวณแคลอรี่ที่ควรบริโภคต่อวันเพื่อลดน้ำหนัก</h3>
             <form onsubmit="calculateCalories(event)">
@@ -43,33 +42,24 @@
             </form>
             <p>แคลอรี่ที่ควรบริโภคต่อวันเพื่อลดน้ำหนัก: <strong id="calories-result">-</strong> kcal</p>
         </div>
-
-        <!-- บันทึกอาหารและกิจกรรม -->
         <div class="card">
-            <h3>บันทึกอาหารและกิจกรรมของคุณ</h3>
-            <form onsubmit="logCalories(event)">
-                <label for="food-name">ชื่ออาหารที่กิน:</label>
-                <input type="text" id="food-name" name="food-name" placeholder="กรอกชื่ออาหาร">
+            <h3>คำนวณแคลอรี่ที่เผาผลาญจากการวิ่ง Jogging</h3>
+            <form onsubmit="calculateJoggingCalories(event)">
+                <label for="jogging-time">เวลาในการวิ่ง (ชั่วโมง:นาที):</label>
+                <input type="text" id="jogging-time" name="jogging-time" placeholder="กรอกเวลา (เช่น 1:30)">
                 <br><br>
-                <label for="food-quantity">จำนวน (กรัม):</label>
-                <input type="number" id="food-quantity" name="food-quantity" placeholder="กรอกจำนวนอาหาร">
+                <label for="distance">ระยะทางในการวิ่ง (กิโลเมตร):</label>
+                <input type="number" id="distance" name="distance" step="0.1" placeholder="กรอกระยะทาง (กม.)">
                 <br><br>
-                <label for="activity">วิ่ง jogging (ชั่วโมง:นาที):</label>
-                <input type="text" id="activity" name="activity" placeholder="กรอกกิจกรรม">
-                <br><br>
-                <button type="submit" class="submit-btn">บันทึก</button>
+                <button type="submit" class="submit-btn">คำนวณ</button>
             </form>
-            <p>แคลอรี่ตอนนี้: <strong id="activity-calories">-</strong> kcal</p>
-            <div class="progress-bar">
-                <div class="progress" id="progress-bar"></div>
-            </div>
+            <p>แคลอรี่ที่เผาผลาญ: <strong id="jogging-calories">-</strong> kcal</p>
         </div>
     </div>
 
     <script>
         let dailyCalories = 0;
 
-        // ฟังก์ชันคำนวณแคลอรี่ที่ควรบริโภค
         function calculateCalories(event) {
             event.preventDefault();
 
@@ -82,7 +72,7 @@
             if (weight > 0 && targetWeight > 0 && height > 0 && age > 0) {
                 let bmr, targetBmr;
 
-                // คำนวณ BMR ตามเพศ
+              
                 if (gender === 'male') {
                     bmr = 88.36 + (13.4 * weight) + (4.8 * height) - (5.7 * age);
                     targetBmr = 88.36 + (13.4 * targetWeight) + (4.8 * height) - (5.7 * age);
@@ -91,7 +81,7 @@
                     targetBmr = 447.6 + (9.2 * targetWeight) + (3.1 * height) - (4.3 * age);
                 }
 
-                dailyCalories = targetBmr - 500;  // สมมุติว่าลดแคลอรี่ 500 kcal เพื่อการลดน้ำหนัก
+                dailyCalories = targetBmr - 500;  
 
                 document.getElementById('calories-result').textContent = dailyCalories.toFixed(2);
             } else {
@@ -99,26 +89,20 @@
             }
         }
 
-        // ฟังก์ชันคำนวณแคลอรี่จากการบันทึกอาหารและกิจกรรม
-        function logCalories(event) {
+       
+        function calculateJoggingCalories(event) {
             event.preventDefault();
 
-            const foodQuantity = parseFloat(document.getElementById('food-quantity').value);
-            const activityTime = document.getElementById('activity').value.split(":");
-            const activityHours = parseInt(activityTime[0]);
-            const activityMinutes = parseInt(activityTime[1]);
+            const joggingTime = document.getElementById('jogging-time').value.split(":");
+            const hours = parseInt(joggingTime[0]);
+            const minutes = parseInt(joggingTime[1]);
+            const distance = parseFloat(document.getElementById('distance').value);
 
-            if (foodQuantity > 0 && activityHours >= 0 && activityMinutes >= 0) {
-                const foodCalories = foodQuantity * 4; // สมมุติว่าอาหารมีแคลอรี่ 4 kcal ต่อกรัม
-                const activityCalories = (activityHours * 60 + activityMinutes) * 10; // สมมุติว่า 10 kcal ต่อ 1 นาทีในการวิ่ง
+            if (hours >= 0 && minutes >= 0 && distance > 0) {
+                const totalMinutes = (hours * 60) + minutes;
+                const caloriesBurned = (distance * 60) + (totalMinutes * 5); 
 
-                const totalCalories = foodCalories - activityCalories;
-                document.getElementById('activity-calories').textContent = totalCalories.toFixed(2);
-
-                // อัพเดต Progress Bar
-                const progress = document.getElementById('progress-bar');
-                const percentage = Math.min((totalCalories / dailyCalories) * 100, 100); // ไม่ให้เกิน 100%
-                progress.style.width = `${percentage}%`;
+                document.getElementById('jogging-calories').textContent = caloriesBurned.toFixed(2);
             } else {
                 alert('กรุณากรอกข้อมูลที่ถูกต้อง');
             }
